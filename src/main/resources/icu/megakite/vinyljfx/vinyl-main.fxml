@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.effect.BoxBlur?>
+<?import javafx.scene.effect.Shadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane id="root-pane" fx:id="stackPaneRoot" minHeight="700.0" minWidth="900.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="icu.megakite.vinyljfx.Controller">
+    <children>
+        <ImageView fx:id="imageViewBackground" opacity="0.5" pickOnBounds="true" smooth="false">
+            <effect>
+                <BoxBlur height="255.0" iterations="3" width="255.0" />
+            </effect>
+         <viewport>
+            <Rectangle2D />
+         </viewport>
+        </ImageView>
+      <Pane fx:id="pane" prefHeight="200.0" prefWidth="200.0" StackPane.alignment="CENTER">
+         <StackPane.margin>
+            <Insets />
+         </StackPane.margin>
+      </Pane>
+        <GridPane fx:id="gridPane" hgap="40.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="NEVER" percentWidth="40.0" />
+                <ColumnConstraints hgrow="NEVER" percentWidth="60.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <VBox fx:id="vBoxControl" alignment="CENTER" spacing="20.0">
+                    <children>
+                        <StackPane fx:id="stackPaneAlbumArt" VBox.vgrow="NEVER">
+                            <children>
+                                <Pane opacity="0.5" style="-fx-background-color: black;">
+                                    <effect>
+                                        <Shadow height="127.0" width="127.0" />
+                                    </effect>
+                                </Pane>
+                                <Pane fx:id="paneShadow">
+                                    <children>
+                                        <ImageView fx:id="imageViewCover" fitWidth="272.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@defaultCover.png" />
+                                            </image>
+                                        </ImageView>
+                                    </children>
+                                </Pane>
+                            </children>
+                            <VBox.margin>
+                                <Insets />
+                            </VBox.margin>
+                        </StackPane>
+                        <AnchorPane VBox.vgrow="NEVER">
+                            <children>
+                                <VBox alignment="BOTTOM_LEFT" minHeight="-Infinity" nodeOrientation="LEFT_TO_RIGHT" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <children>
+                                        <Label fx:id="labelTitle" text="&lt;Welcome to Vinyl JFX&gt;" textFill="WHITE" VBox.vgrow="NEVER">
+                                            <VBox.margin>
+                                                <Insets />
+                                            </VBox.margin>
+                                            <font>
+                                                <Font name="Microsoft YaHei Bold" size="18.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="labelArtist" opacity="0.5" text="&lt;Ready to play&gt;" textFill="WHITE" VBox.vgrow="NEVER">
+                                            <VBox.margin>
+                                                <Insets />
+                                            </VBox.margin>
+                                            <font>
+                                                <Font name="Microsoft YaHei" size="18.0" />
+                                            </font>
+                                        </Label>
+                                        <Region prefHeight="9.0" />
+                                        <StackPane>
+                                            <children>
+                                                <ProgressBar id="progress-bar-indicator" fx:id="progressBar" maxWidth="1.7976931348623157E308" prefHeight="6.0" progress="0.0">
+                                                    <StackPane.margin>
+                                                        <Insets left="9.0" right="9.0" />
+                                                    </StackPane.margin>
+                                                </ProgressBar>
+                                                <Slider id="slider-progress" fx:id="slider" minHeight="24.0" opacity="0.5">
+                                                    <cursor>
+                                                        <Cursor fx:constant="HAND" />
+                                                    </cursor>
+                                                </Slider>
+                                            </children>
+                                            <VBox.margin>
+                                                <Insets />
+                                            </VBox.margin>
+                                        </StackPane>
+                                        <HBox alignment="CENTER" opacity="0.5" VBox.vgrow="NEVER">
+                                            <children>
+                                                <Label fx:id="labelTimeNow" text="0:00" textFill="WHITE">
+                                                    <font>
+                                                        <Font name="Microsoft YaHei Bold" size="12.0" />
+                                                    </font>
+                                                </Label>
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Label fx:id="labelTimeRemaining" text="-0:00" textAlignment="RIGHT" textFill="WHITE">
+                                                    <font>
+                                                        <Font name="Microsoft YaHei Bold" size="12.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER" minHeight="48.0" VBox.vgrow="NEVER">
+                                            <children>
+                                                <CheckBox id="random-checkbox" fx:id="checkBoxRandom" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Button id="previous-button" fx:id="buttonPrev" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonPrevAction" />
+                                                <Region prefWidth="16.0" />
+                                                <ToggleButton id="play-pause-button" fx:id="toggleButtonPlayPause" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onToggleButtonPlayPauseAction" />
+                                                <Region prefWidth="16.0" />
+                                                <Button id="next-button" fx:id="buttonNext" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonNextAction" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <CheckBox id="repeat-checkbox" fx:id="checkBoxRepeat" allowIndeterminate="true" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" />
+                                            </children>
+                                            <VBox.margin>
+                                                <Insets />
+                                            </VBox.margin>
+                                        </HBox>
+                                        <Region prefHeight="18.0" />
+                                        <HBox alignment="CENTER" spacing="8.0" VBox.vgrow="NEVER">
+                                            <children>
+                                                <ImageView id="volume-down-image-view" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="NEVER">
+                                                    <image>
+                                                        <Image url="@res/volume_down_FILL1_wght700_GRAD0_opsz24.png" />
+                                                    </image>
+                                                </ImageView>
+                                                <StackPane HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <ProgressBar fx:id="volumeProgressBar" maxWidth="1.7976931348623157E308" prefHeight="6.0" progress="1.0">
+                                                            <StackPane.margin>
+                                                                <Insets left="9.0" right="9.0" />
+                                                            </StackPane.margin>
+                                                        </ProgressBar>
+                                                        <Slider fx:id="volumeSlider" blockIncrement="0.1" max="1.0" opacity="0.5" value="1.0">
+                                                            <cursor>
+                                                                <Cursor fx:constant="HAND" />
+                                                            </cursor>
+                                                        </Slider>
+                                                    </children>
+                                                </StackPane>
+                                                <ImageView id="volume-up-image-view" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="NEVER">
+                                                    <image>
+                                                        <Image url="@res/volume_up_FILL1_wght700_GRAD0_opsz24.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                            <VBox.margin>
+                                                <Insets />
+                                            </VBox.margin>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </children>
+                </VBox>
+                <VBox GridPane.columnIndex="1">
+                    <children>
+                  <HBox minHeight="36.0" nodeOrientation="RIGHT_TO_LEFT">
+                     <children>
+                        <Button id="close-button" fx:id="buttonClose" mnemonicParsing="false" onAction="#onButtonCloseAction" prefHeight="36.0" prefWidth="36.0" />
+                        <ToggleButton id="fullscreen-toggle-button" fx:id="toggleButtonFullscreen" mnemonicParsing="false" onAction="#onToggleButtonFullscreenAction" prefHeight="36.0" prefWidth="36.0" />
+                        <Button id="minimize-button" fx:id="buttonMinimize" mnemonicParsing="false" onAction="#onButtonMinimizeAction" prefHeight="36.0" prefWidth="36.0" />
+                     </children>
+                  </HBox>
+                        <StackPane VBox.vgrow="ALWAYS">
+                            <children>
+                                <Pane fx:id="paneLyrics" blendMode="OVERLAY" mouseTransparent="true">
+                                    <children>
+                                        <VBox fx:id="vBoxLyrics" prefWidth="408.0" spacing="30.0">
+                                            <children>
+                                                <Label text="&lt;Lyrics will be shown here&gt;" textFill="WHITE" wrapText="true">
+                                                    <font>
+                                                        <Font name="Microsoft YaHei Bold" size="28.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </Pane>
+                                <ListView fx:id="listViewSong" editable="true" />
+                            </children>
+                            <VBox.margin>
+                                <Insets />
+                            </VBox.margin>
+                        </StackPane>
+                        <HBox alignment="BOTTOM_RIGHT" minHeight="36.0" spacing="18.0" VBox.vgrow="NEVER">
+                            <children>
+                                <RadioButton id="lyrics-radio-button" fx:id="radioButtonLyrics" minHeight="36.0" minWidth="36.0" onAction="#onRadioButtonLyricsAction" textFill="WHITE" />
+                                <RadioButton id="list-radio-button" fx:id="radioButtonList" minHeight="36.0" minWidth="36.0" onAction="#onRadioButtonListAction" textFill="WHITE" />
+                            </children>
+                            <VBox.margin>
+                                <Insets />
+                            </VBox.margin>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+            <StackPane.margin>
+                <Insets />
+            </StackPane.margin>
+            <padding>
+                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+            </padding>
+        </GridPane>
+    </children>
+   <padding>
+      <Insets bottom="68.0" left="50.0" right="50.0" top="32.0" />
+   </padding>
+</StackPane>

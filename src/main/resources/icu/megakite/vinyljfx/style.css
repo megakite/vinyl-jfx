@@ -1,0 +1,188 @@
+#root-pane {
+    -fx-background-color: #555;
+    -fx-background-radius: 9;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.52), 50, 0, 0, 18);
+    -fx-background-insets: 32 50 68 50;
+}
+
+#root-pane-maximized {
+    -fx-background-color: #555;
+}
+
+#drag-indicator {
+    -fx-background-image: url('res/drag_indicator_FILL0_wght700_GRAD0_opsz24.png');
+    -fx-background-repeat: no-repeat;
+    -fx-background-insets: 0;
+    -fx-background-position: center center;
+}
+
+#play-pause-button {
+    -fx-background-image: url('res/play_arrow_FILL1_wght700_GRAD0_opsz48.png');
+}
+
+#play-pause-button:selected {
+    -fx-background-image: url('res/pause_FILL1_wght700_GRAD0_opsz48.png');
+}
+
+.check-box .box {
+    -fx-background-color: transparent;
+    -fx-padding: 12;
+    -fx-border-radius: 0;
+}
+
+.check-box .mark {
+    -fx-opacity: 0;
+    -fx-padding: 0;
+}
+
+#random-checkbox .box {
+    -fx-background-image: url('res/shuffle_FILL1_wght700_GRAD0_opsz24.png');
+}
+
+#random-checkbox:selected .box {
+    -fx-background-image: url('res/shuffle_on_FILL1_wght700_GRAD0_opsz24.png');
+}
+
+#repeat-checkbox .box {
+    -fx-background-image: url('res/repeat_FILL1_wght700_GRAD0_opsz24.png');
+}
+
+#repeat-checkbox:selected .box {
+    -fx-background-image: url('res/repeat_one_on_FILL1_wght700_GRAD0_opsz24.png');
+}
+
+#repeat-checkbox:selected:indeterminate .box {
+    -fx-background-color: url('res/repeat_on_FILL1_wght700_GRAD0_opsz24.png');
+}
+
+.toggle-button, .button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+#previous-button {
+    -fx-background-image: url('res/fast_rewind_FILL1_wght700_GRAD0_opsz48.png');
+}
+
+#next-button {
+    -fx-background-image: url('res/fast_forward_FILL1_wght700_GRAD0_opsz48.png');
+}
+
+.text-area {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+.text-area .scroll-pane, .text-area .scroll-pane .viewport, .text-area .scroll-pane .content {
+    -fx-background-color: transparent;
+}
+
+.text-area .scroll-bar:vertical {
+    -fx-pref-width: 0;
+    -fx-opacity: 0;
+    -fx-unit-increment: 100;
+}
+
+.slider .thumb {
+    -fx-opacity: 0;
+    -fx-padding: 12;
+}
+
+.slider .track {
+    -fx-background-color: white;
+	-fx-background-insets: 0;
+}
+
+.progress-bar {
+    -fx-accent: white;
+}
+
+.progress-bar .track {
+    -fx-background-color: transparent;
+}
+
+.progress-bar .bar {
+	-fx-background-insets: 0;
+	-fx-padding: 0;
+}
+
+.radio-button {
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+.radio-button .radio {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+.radio-button:selected .radio .dot {
+    -fx-background-color: white;
+    -fx-background-radius: 4;
+    -fx-background-insets: 0;
+    -fx-padding: 18;
+    -fx-opacity: 0.5;
+}
+
+#list-radio-button {
+    -fx-background-image: url('res/list_FILL1_wght700_GRAD0_opsz24.png');
+}
+
+#lyrics-radio-button {
+    -fx-background-image: url('res/chat_FILL1_wght700_GRAD0_opsz24.png');
+}
+
+.list-view {
+    -fx-background-color: transparent;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-font-size: 16;
+    -fx-text-fill: white;
+    -fx-font-family: 'Microsoft YaHei', sans-serif;
+}
+
+.list-cell:selected {
+    -fx-font-weight: bold;
+}
+
+.list-view .scroll-bar {
+    -fx-background-color: transparent;
+    -fx-opacity: 0.5;
+    -fx-pref-width: 9;
+}
+
+.list-view .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}
+
+.list-view .scroll-bar .increment-button {
+    -fx-background-color: transparent;
+}
+
+.list-view .scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+.list-view .scroll-bar .thumb {
+    -fx-background-color: white;
+}
+
+#close-button {
+    -fx-background-image: url('res/close_FILL0_wght700_GRAD0_opsz24.png');
+}
+
+#minimize-button {
+    -fx-background-image: url('res/minimize_FILL0_wght700_GRAD0_opsz24.png');
+}
+
+#fullscreen-toggle-button {
+    -fx-background-image: url('res/fullscreen_FILL0_wght700_GRAD0_opsz24.png');
+}
+
+#fullscreen-toggle-button:selected {
+    -fx-background-image: url('res/close_fullscreen_FILL0_wght700_GRAD0_opsz24.png');
+}
