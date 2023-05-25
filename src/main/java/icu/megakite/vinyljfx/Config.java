@@ -61,17 +61,8 @@ public class Config {
         return volume;
     }
 
-    public Mode getMode() {
-        return mode;
-    }
-
     public void setVolume(double volume) {
         this.volume = volume;
-        update();
-    }
-
-    public void setMode(Mode mode) {
-        this.mode = mode;
         update();
     }
 

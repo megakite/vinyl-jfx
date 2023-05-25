@@ -27,15 +27,14 @@ public class VinylJFX extends Application {
             if (stage.isMaximized())
                 return;
 
-            if (xOffset > stage.getWidth() - 50 - 18
-                    && yOffset > stage.getHeight() - 68 - 18) {
-                stage.setWidth(e.getScreenX() - stage.getX() + 50);
-                stage.setHeight(e.getScreenY() - stage.getY() + 68);
-            } else {
-                stage.setX(e.getScreenX() - xOffset);
-                stage.setY(e.getScreenY() - yOffset);
-            }
-
+//            if (xOffset > stage.getWidth() - 50 - 18
+//                    && yOffset > stage.getHeight() - 68 - 18) {
+//                stage.setWidth(e.getScreenX() - stage.getX() + 50);
+//                stage.setHeight(e.getScreenY() - stage.getY() + 68);
+//            } else {
+            stage.setX(e.getScreenX() - xOffset);
+            stage.setY(e.getScreenY() - yOffset);
+//            }
         });
 
         Scene scene = new Scene(root, 800 + 50 * 2, 600 + 50 * 2);

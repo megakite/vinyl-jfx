@@ -1,19 +1,16 @@
 package icu.megakite.vinyljfx;
 
 import javafx.animation.*;
-import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.*;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
@@ -24,7 +21,6 @@ import javafx.util.Duration;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.*;
@@ -79,11 +75,7 @@ public class Controller {
     @FXML
     private ToggleButton toggleButtonFullscreen;
     @FXML
-    private GridPane gridPane;
-    @FXML
-    private Pane pane;
-    @FXML
-    private ToggleGroup toggleGroup = new ToggleGroup();
+    private final ToggleGroup toggleGroup = new ToggleGroup();
 
     private static final Interpolator cubicEaseOut = new Interpolator() {
         @Override
@@ -115,14 +107,16 @@ public class Controller {
         listViewSong.setVisible(true);
 
         vBoxLyrics.prefWidthProperty().bind(paneLyrics.widthProperty().multiply(0.9));
+        var clipVBoxLyrics = new Rectangle(stackPaneRoot.getWidth(), stackPaneRoot.getHeight());
+        clipVBoxLyrics.widthProperty().bind(paneLyrics.widthProperty());
+        clipVBoxLyrics.heightProperty().bind(stackPaneRoot.heightProperty().subtract(100));
+        clipVBoxLyrics.yProperty().bind(paneLyrics.translateYProperty().negate().subtract(40 + 36));
+        vBoxLyrics.setClip(clipVBoxLyrics);
 
-        imageViewBackground.fitWidthProperty().bind(stackPaneRoot.widthProperty().add(254.0));
-        imageViewBackground.fitHeightProperty().bind(stackPaneRoot.heightProperty().add(254.0));
+        imageViewBackground.fitWidthProperty().bind(stackPaneRoot.widthProperty().add(127 * 2));
+        imageViewBackground.fitHeightProperty().bind(stackPaneRoot.heightProperty().add(127 * 2));
         imageViewBackground.imageProperty().bind(imageViewCover.imageProperty());
-        var rectangle = new Rectangle(127 + 50, 127 + 50, 800, 600);
-        rectangle.setArcHeight(9 * 2);
-        rectangle.setArcWidth(9 * 2);
-        imageViewBackground.setClip(rectangle);
+        updateClip();
 
         paneShadow.prefHeightProperty().bind(paneShadow.widthProperty());
         imageViewCover.fitWidthProperty().bind(paneShadow.widthProperty());
@@ -332,15 +326,6 @@ public class Controller {
         fade.play();
     }
 
-    private void updateClip() {
-        double width = stackPaneRoot.getWidth() - 100;
-        double height = stackPaneRoot.getHeight() - 100;
-        var rectangle = new Rectangle(127 + 50, 127 + 50, width, height);
-        rectangle.setArcHeight(9 * 2);
-        rectangle.setArcWidth(9 * 2);
-        imageViewBackground.setClip(rectangle);
-    }
-
     public void onRadioButtonListAction() {
         paneLyrics.setVisible(false);
         listViewSong.setVisible(true);
@@ -391,6 +376,15 @@ public class Controller {
             ((Stage) toggleButtonFullscreen.getScene().getWindow()).setMaximized(false);
             updateClip();
         }
+    }
+
+    private void updateClip() {
+        var clipImageViewBackground = new Rectangle(127 + 50, 127 + 50, 800, 600);
+        clipImageViewBackground.widthProperty().bind(stackPaneRoot.widthProperty().subtract(100));
+        clipImageViewBackground.heightProperty().bind(stackPaneRoot.heightProperty().subtract(100));
+        clipImageViewBackground.setArcHeight(9 * 2);
+        clipImageViewBackground.setArcWidth(9 * 2);
+        imageViewBackground.setClip(clipImageViewBackground);
     }
 
     public void onMediaPlayerPaused() {

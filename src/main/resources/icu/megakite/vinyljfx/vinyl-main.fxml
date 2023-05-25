@@ -36,12 +36,12 @@
             <Rectangle2D />
          </viewport>
         </ImageView>
-      <Pane fx:id="pane" prefHeight="200.0" prefWidth="200.0" StackPane.alignment="CENTER">
+      <Pane prefHeight="200.0" prefWidth="200.0" StackPane.alignment="CENTER">
          <StackPane.margin>
             <Insets />
          </StackPane.margin>
       </Pane>
-        <GridPane fx:id="gridPane" hgap="40.0">
+        <GridPane hgap="40.0">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" percentWidth="40.0" />
                 <ColumnConstraints hgrow="NEVER" percentWidth="60.0" />
@@ -50,7 +50,7 @@
                 <RowConstraints vgrow="SOMETIMES" />
             </rowConstraints>
             <children>
-                <VBox fx:id="vBoxControl" alignment="CENTER" spacing="20.0">
+                <VBox alignment="CENTER" spacing="20.0">
                     <children>
                         <StackPane fx:id="stackPaneAlbumArt" VBox.vgrow="NEVER">
                             <children>
@@ -130,11 +130,11 @@
                                             <children>
                                                 <CheckBox id="random-checkbox" fx:id="checkBoxRandom" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" />
                                                 <Region HBox.hgrow="ALWAYS" />
-                                                <Button id="previous-button" fx:id="buttonPrev" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonPrevAction" />
+                                                <Button id="previous-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonPrevAction" />
                                                 <Region prefWidth="16.0" />
                                                 <ToggleButton id="play-pause-button" fx:id="toggleButtonPlayPause" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onToggleButtonPlayPauseAction" />
                                                 <Region prefWidth="16.0" />
-                                                <Button id="next-button" fx:id="buttonNext" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonNextAction" />
+                                                <Button id="next-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonNextAction" />
                                                 <Region HBox.hgrow="ALWAYS" />
                                                 <CheckBox id="repeat-checkbox" fx:id="checkBoxRepeat" allowIndeterminate="true" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" />
                                             </children>
@@ -180,16 +180,17 @@
                         </AnchorPane>
                     </children>
                 </VBox>
-                <VBox GridPane.columnIndex="1">
-                    <children>
-                  <HBox minHeight="36.0" nodeOrientation="RIGHT_TO_LEFT">
-                     <children>
-                        <Button id="close-button" fx:id="buttonClose" mnemonicParsing="false" onAction="#onButtonCloseAction" prefHeight="36.0" prefWidth="36.0" />
-                        <ToggleButton id="fullscreen-toggle-button" fx:id="toggleButtonFullscreen" mnemonicParsing="false" onAction="#onToggleButtonFullscreenAction" prefHeight="36.0" prefWidth="36.0" />
-                        <Button id="minimize-button" fx:id="buttonMinimize" mnemonicParsing="false" onAction="#onButtonMinimizeAction" prefHeight="36.0" prefWidth="36.0" />
-                     </children>
-                  </HBox>
-                        <StackPane VBox.vgrow="ALWAYS">
+            <GridPane GridPane.columnIndex="1">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints vgrow="NEVER" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                <RowConstraints vgrow="NEVER" />
+              </rowConstraints>
+               <children>
+                        <StackPane GridPane.rowIndex="1">
                             <children>
                                 <Pane fx:id="paneLyrics" blendMode="OVERLAY" mouseTransparent="true">
                                     <children>
@@ -206,21 +207,22 @@
                                 </Pane>
                                 <ListView fx:id="listViewSong" editable="true" />
                             </children>
-                            <VBox.margin>
-                                <Insets />
-                            </VBox.margin>
                         </StackPane>
-                        <HBox alignment="BOTTOM_RIGHT" minHeight="36.0" spacing="18.0" VBox.vgrow="NEVER">
+                        <HBox alignment="BOTTOM_RIGHT" minHeight="36.0" spacing="18.0" GridPane.rowIndex="2">
                             <children>
                                 <RadioButton id="lyrics-radio-button" fx:id="radioButtonLyrics" minHeight="36.0" minWidth="36.0" onAction="#onRadioButtonLyricsAction" textFill="WHITE" />
                                 <RadioButton id="list-radio-button" fx:id="radioButtonList" minHeight="36.0" minWidth="36.0" onAction="#onRadioButtonListAction" textFill="WHITE" />
                             </children>
-                            <VBox.margin>
-                                <Insets />
-                            </VBox.margin>
                         </HBox>
-                    </children>
-                </VBox>
+                  <HBox minHeight="36.0" nodeOrientation="RIGHT_TO_LEFT">
+                     <children>
+                        <Button id="close-button" fx:id="buttonClose" mnemonicParsing="false" onAction="#onButtonCloseAction" prefHeight="36.0" prefWidth="36.0" />
+                        <ToggleButton id="fullscreen-toggle-button" fx:id="toggleButtonFullscreen" mnemonicParsing="false" onAction="#onToggleButtonFullscreenAction" prefHeight="36.0" prefWidth="36.0" />
+                        <Button id="minimize-button" fx:id="buttonMinimize" mnemonicParsing="false" onAction="#onButtonMinimizeAction" prefHeight="36.0" prefWidth="36.0" />
+                     </children>
+                  </HBox>
+               </children>
+            </GridPane>
             </children>
             <StackPane.margin>
                 <Insets />
