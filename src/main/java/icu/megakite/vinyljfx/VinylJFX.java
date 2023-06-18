@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -15,10 +16,12 @@ public class VinylJFX extends Application {
     private double yOffset = 0;
 
     @Override
+    @SuppressWarnings("ConstantConditions")
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(VinylJFX.class.getResource("vinyl-main.fxml"));
-
         Parent root = fxmlLoader.load();
+
+        // Make the window draggable
         root.setOnMousePressed(e -> {
             xOffset = e.getSceneX();
             yOffset = e.getSceneY();
@@ -27,21 +30,21 @@ public class VinylJFX extends Application {
             if (stage.isMaximized())
                 return;
 
-//            if (xOffset > stage.getWidth() - 50 - 18
-//                    && yOffset > stage.getHeight() - 68 - 18) {
-//                stage.setWidth(e.getScreenX() - stage.getX() + 50);
-//                stage.setHeight(e.getScreenY() - stage.getY() + 68);
-//            } else {
             stage.setX(e.getScreenX() - xOffset);
             stage.setY(e.getScreenY() - yOffset);
-//            }
         });
 
         Scene scene = new Scene(root, 800 + 50 * 2, 600 + 50 * 2);
         scene.setFill(Color.TRANSPARENT);
 
         stage.initStyle(StageStyle.TRANSPARENT);
-        stage.setTitle("Vinyl JFX v0.0.1");
+        stage.setTitle("Vinyl JFX v0.1.0");
+        stage.getIcons().addAll(
+                new Image(VinylJFX.class.getResourceAsStream("icons/vinyl-jfx-16.png")),
+                new Image(VinylJFX.class.getResourceAsStream("icons/vinyl-jfx-24.png")),
+                new Image(VinylJFX.class.getResourceAsStream("icons/vinyl-jfx-32.png")),
+                new Image(VinylJFX.class.getResourceAsStream("icons/vinyl-jfx-48.png")),
+                new Image(VinylJFX.class.getResourceAsStream("icons/vinyl-jfx-256.png")));
         stage.setScene(scene);
         stage.show();
 

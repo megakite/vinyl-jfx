@@ -22,8 +22,7 @@ public class Config {
 
                 String key = line.substring(0, line.lastIndexOf('='));
                 String value = line.substring(line.lastIndexOf('=') + 1);
-                switch (key)
-                {
+                switch (key) {
                 case "volume":
                     volume = parseDouble(value);
                     break;
@@ -46,7 +45,7 @@ public class Config {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -76,10 +75,11 @@ public class Config {
             bufferedWriter.newLine();
             bufferedWriter.write("mode=");
             bufferedWriter.write(mode.toString());
+            bufferedWriter.newLine();
 
             bufferedWriter.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }

@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public class LrcParser {
     private static final Pattern patternLine = Pattern.compile("\\[(.*?)](.*)");
     private static final Pattern patternTime = Pattern.compile("(.*):(.*)\\.(.*)");
-    private static final Pair<Duration, String> defaultLyric = new Pair<>(Duration.ONE, "<未找到歌词文件>");
+    private static final Pair<Duration, String> defaultLyric = new Pair<>(Duration.ONE, "<Lyrics file not found>");
 
     public static List<Pair<Duration, String>> parse(String s) {
         List<Pair<Duration, String>> list = new ArrayList<>();
@@ -23,7 +23,6 @@ public class LrcParser {
         try {
             uri = new URI(s);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
             return List.of(defaultLyric);
         }
 
@@ -40,7 +39,6 @@ public class LrcParser {
             try {
                 line = reader.readLine();
             } catch (IOException e) {
-                e.printStackTrace();
                 return List.of(defaultLyric);
             }
 
@@ -58,12 +56,17 @@ public class LrcParser {
             if (!matcherTime.find())
                 continue;
 
-            int minutes = Integer.parseInt(matcherTime.group(1));
-            int seconds = Integer.parseInt(matcherTime.group(2));
-            int hundredths = Integer.parseInt(matcherTime.group(3));
+            try {
+                int minutes = Integer.parseInt(matcherTime.group(1));
+                int seconds = Integer.parseInt(matcherTime.group(2));
+                int hundredths = Integer.parseInt(matcherTime.group(3));
 
-            var timestamp = new Duration(minutes * 60 * 1000 + seconds * 1000 + hundredths * 10);
-            list.add(new Pair<>(timestamp, lyric));
+                var timestamp = new Duration(minutes * 60 * 1000 + seconds * 1000 + hundredths * 10);
+
+                list.add(new Pair<>(timestamp, lyric));
+            } catch (NumberFormatException ignored) {
+                // continue
+            }
         }
 
         return list;

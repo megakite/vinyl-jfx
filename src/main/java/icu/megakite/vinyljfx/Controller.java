@@ -2,9 +2,9 @@ package icu.megakite.vinyljfx;
 
 import javafx.animation.*;
 import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -75,6 +75,8 @@ public class Controller {
     @FXML
     private ToggleButton toggleButtonFullscreen;
     @FXML
+    private Pane paneImageView;
+    @FXML
     private final ToggleGroup toggleGroup = new ToggleGroup();
 
     private static final Interpolator cubicEaseOut = new Interpolator() {
@@ -93,40 +95,56 @@ public class Controller {
         }
     };
 
-    private static final Image defaultCover = new Image(new File("defaultCover.png").toURI().toString());
+    @SuppressWarnings("ConstantConditions")
+    private static final Image defaultCover = new Image(VinylJFX.class.getResourceAsStream("images/defaultCover.png"));
+
     private static final Config config = Config.getInstance();
 
     private MediaPlayer mediaPlayer;
 
     public void initialize() {
+        // Setup toggle group
         radioButtonList.setToggleGroup(toggleGroup);
         radioButtonLyrics.setToggleGroup(toggleGroup);
 
-        radioButtonList.setSelected(true);
-        paneLyrics.setVisible(false);
-        listViewSong.setVisible(true);
+        // Default startup screen to lyrics view
+        radioButtonLyrics.setSelected(true);
+        listViewSong.setVisible(false);
 
+        // Setup clip for lyrics box & (blurred) background image
         vBoxLyrics.prefWidthProperty().bind(paneLyrics.widthProperty().multiply(0.9));
-        var clipVBoxLyrics = new Rectangle(stackPaneRoot.getWidth(), stackPaneRoot.getHeight());
-        clipVBoxLyrics.widthProperty().bind(paneLyrics.widthProperty());
-        clipVBoxLyrics.heightProperty().bind(stackPaneRoot.heightProperty().subtract(100));
-        clipVBoxLyrics.yProperty().bind(paneLyrics.translateYProperty().negate().subtract(40 + 36));
-        vBoxLyrics.setClip(clipVBoxLyrics);
-
-        imageViewBackground.fitWidthProperty().bind(stackPaneRoot.widthProperty().add(127 * 2));
-        imageViewBackground.fitHeightProperty().bind(stackPaneRoot.heightProperty().add(127 * 2));
+        imageViewBackground.xProperty().set(-128);
+        imageViewBackground.yProperty().set(-128);
+        imageViewBackground.fitWidthProperty().bind(paneImageView.widthProperty().add(128 * 2));
+        imageViewBackground.fitHeightProperty().bind(paneImageView.heightProperty().add(128 * 2));
         imageViewBackground.imageProperty().bind(imageViewCover.imageProperty());
         updateClip();
 
+        // Setup shadow for cover image
         paneShadow.prefHeightProperty().bind(paneShadow.widthProperty());
         imageViewCover.fitWidthProperty().bind(paneShadow.widthProperty());
 
+        // Normalize progress bar & volume bar
         progressBar.progressProperty().bind(slider.valueProperty().divide(slider.maxProperty()));
-
         volumeProgressBar.progressProperty().bind(volumeSlider.valueProperty().divide(volumeSlider.maxProperty()));
+
+        // Get volume from config file
         volumeSlider.setValue(config.getVolume());
 
-        final var playlistFile = new File("playlist.txt");
+        // Set behaviors for volume & progress slider
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (volumeSlider.isValueChanging()) {
+                mediaPlayer.setVolume(newVal.doubleValue());
+                config.setVolume(newVal.doubleValue());
+            }
+        });
+        slider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (slider.isValueChanging())
+                mediaPlayer.seek(Duration.millis(newVal.doubleValue()));
+        });
+
+        // Initialize playlist collection from file
+        var playlistFile = new File("playlist.txt");
         var songs = new ArrayList<Song>();
         try {
             var fileReader = new FileReader(playlistFile, StandardCharsets.UTF_8);
@@ -139,21 +157,10 @@ public class Controller {
                 songs.add(new Song(line));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
-        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (volumeSlider.isValueChanging()) {
-                mediaPlayer.setVolume(newVal.doubleValue());
-                config.setVolume(newVal.doubleValue());
-            }
-        });
-
-        slider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (slider.isValueChanging())
-                mediaPlayer.seek(Duration.millis(newVal.doubleValue()));
-        });
-
+        // Initialize items & behaviors for playlist view
         var playlist = FXCollections.observableArrayList(songs);
         listViewSong.setItems(playlist);
         listViewSong.setCellFactory(lv -> new SongCell());
@@ -184,89 +191,259 @@ public class Controller {
                 }
                 bufferedWriter.close();
             } catch (IOException ex) {
-                ex.printStackTrace();
+                throw new RuntimeException(ex);
             }
         });
         listViewSong.setOnKeyPressed(e -> {
-            if (e.getCode() != KeyCode.DELETE)
+            if (!(e.getCode() == KeyCode.DELETE || e.getCode() == KeyCode.BACK_SPACE))
                 return;
 
             listViewSong.getItems().remove(listViewSong.getSelectionModel().getSelectedItem());
 
             e.consume();
         });
-
-        listViewSong.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (mediaPlayer != null)
-                mediaPlayer.dispose();
-
-            var song = listViewSong.getSelectionModel().getSelectedItem();
-            var media = new Media(song.getUri().toString());
-            labelTitle.setText(song.getTitle());
-            labelArtist.setText(song.getArtist());
-            imageViewCover.setImage(defaultCover);
-            media.getMetadata().addListener((MapChangeListener<String, Object>) c -> {
-                if (c.wasAdded()) {
-                    if (c.getKey() == "image") {
-                        imageViewCover.setImage((Image) c.getValueAdded());
-                    }
-                }
-            });
-
-            vBoxLyrics.getChildren().clear();
-            var lyrics =
-                    LrcParser.parse(media.getSource().substring(0, media.getSource().lastIndexOf('.')) + ".lrc");
-            for (var lyric : lyrics) {
-                var label = new Label(lyric.getValue());
-                label.setFont(Font.font("Microsoft YaHei", FontWeight.BOLD, 28));
-                label.setTextFill(Paint.valueOf("#ffffff"));
-                label.setOpacity(0.5);
-                label.setWrapText(true);
-
-                vBoxLyrics.getChildren().add(label);
-            }
-
-            toggleButtonPlayPause.setSelected(true);
-
-            mediaPlayer = new MediaPlayer(media);
-            mediaPlayer.currentTimeProperty().addListener((obs1, oldVal1, newVal1) -> {
-                if (!slider.isValueChanging())
-                    slider.setValue(newVal1.toMillis());
-
-                for (int i = 0; i < lyrics.size(); ++i) {
-                    var time = lyrics.get(i).getKey();
-
-                    if (oldVal1.lessThan(time) && newVal1.greaterThan(time)) {
-                        highlightOfIndex(i);
-                        if (i != 0)
-                            highlightRevertOfIndex(i);
-                    } else if (oldVal1.greaterThan(time) && newVal1.lessThan(time)) {
-                        highlightOfIndex(i);
-                        if (i != lyrics.size() - 1)
-                            highlightRevertOfIndex(i);
-                    }
-                }
-
-                var remaining = newVal1.subtract(media.getDuration());
-                labelTimeNow.setText(toMinutesSeconds(newVal1));
-                labelTimeRemaining.setText(toMinutesSeconds(remaining));
-            });
-            mediaPlayer.statusProperty().addListener((obs1, oldVal1, newVal1) -> {
-                if (newVal1 == MediaPlayer.Status.READY)
-                    slider.setMax(mediaPlayer.getTotalDuration().toMillis());
-            });
-
-            mediaPlayer.setOnEndOfMedia(this::onMediaPlayerEndOfMedia);
-            mediaPlayer.setOnPlaying(this::onMediaPlayerPlaying);
-            mediaPlayer.setOnPaused(this::onMediaPlayerPaused);
-            mediaPlayer.setOnStopped(this::onMediaPlayerStopped);
-
-            mediaPlayer.setVolume(volumeSlider.getValue());
-
-            mediaPlayer.play();
-        });
+        listViewSong.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> play(newVal));
     }
 
+    @FXML
+    protected void onStackPaneProgressMouseEntered() {
+        scaleTo(progressBar, 1.02, 1.6);
+        scaleTo(slider, 1.02, 1.6);
+    }
+
+    @FXML
+    protected void onStackPaneProgressMouseExited() {
+        scaleTo(progressBar, 1, 1);
+        scaleTo(slider, 1, 1);
+    }
+
+    @FXML
+    protected void onStackPaneVolumeMouseEntered() {
+        scaleTo(volumeProgressBar, 1.02, 1.6);
+        scaleTo(volumeSlider, 1.02, 1.6);
+    }
+
+    @FXML
+    protected void onStackPaneVolumeMouseExited() {
+        scaleTo(volumeProgressBar, 1, 1);
+        scaleTo(volumeSlider, 1, 1);
+    }
+
+    @FXML
+    protected void onArbitraryNodeMouseEntered(MouseEvent e) {
+        scaleTo((Node) e.getSource(), 1.14, 1.14);
+    }
+
+    @FXML
+    protected void onArbitraryNodeMouseExited(MouseEvent e) {
+        scaleTo((Node) e.getSource(), 1, 1);
+    }
+
+    @FXML
+    protected void onRadioButtonListAction() {
+        paneLyrics.setVisible(false);
+        listViewSong.setVisible(true);
+        listViewSong.refresh();
+    }
+
+    @FXML
+    protected void onRadioButtonLyricsAction() {
+        paneLyrics.setVisible(true);
+        listViewSong.setVisible(false);
+    }
+
+    @FXML
+    protected void onToggleButtonPlayPauseAction() {
+        if (toggleButtonPlayPause.isSelected()) {
+            if (mediaPlayer == null)
+                listViewSong.getSelectionModel().selectFirst();
+
+            mediaPlayer.play();
+        } else {
+            mediaPlayer.pause();
+        }
+    }
+
+    @FXML
+    protected void onButtonNextAction() {
+        listViewSong.getSelectionModel().selectNext();
+    }
+
+    @FXML
+    protected void onButtonPrevAction() {
+        listViewSong.getSelectionModel().selectPrevious();
+    }
+
+    @FXML
+    protected void onButtonCloseAction() {
+        ((Stage) buttonClose.getScene().getWindow()).close();
+    }
+
+    @FXML
+    protected void onButtonMinimizeAction() {
+        ((Stage) buttonMinimize.getScene().getWindow()).setIconified(true);
+    }
+
+    @FXML
+    protected void onToggleButtonFullscreenAction() {
+        if (toggleButtonFullscreen.isSelected()) {
+            stackPaneRoot.setId("root-pane-maximized");
+            stackPaneRoot.setPadding(Insets.EMPTY);
+            ((Stage) toggleButtonFullscreen.getScene().getWindow()).setMaximized(true);
+
+            paneImageView.setClip(null);
+            vBoxLyrics.setClip(null);
+        } else {
+            stackPaneRoot.setId("root-pane");
+            stackPaneRoot.setPadding(new Insets(32, 50, 68, 50));
+            ((Stage) toggleButtonFullscreen.getScene().getWindow()).setMaximized(false);
+
+            updateClip();
+        }
+    }
+
+    private void scaleTo(Node o, double x, double y) {
+        var scale = new ScaleTransition(Duration.millis(250), o);
+        scale.setInterpolator(cubicEaseOut);
+        scale.setToX(x);
+        scale.setToY(y);
+        scale.play();
+    }
+
+    private void onMediaPlayerPaused() {
+        var scale = new ScaleTransition(Duration.millis(500), stackPaneAlbumArt);
+        scale.setInterpolator(cubicEaseOut);
+        scale.setToX(0.7);
+        scale.setToY(0.7);
+        scale.play();
+    }
+
+    private void onMediaPlayerPlaying() {
+        var scale = new ScaleTransition(Duration.millis(700), stackPaneAlbumArt);
+        scale.setInterpolator(fourierBounce);
+        scale.setToX(1);
+        scale.setToY(1);
+        scale.play();
+    }
+
+    private void onMediaPlayerStopped() {
+        imageViewCover.setImage(defaultCover);
+
+        var scale = new ScaleTransition(Duration.millis(500), stackPaneAlbumArt);
+        scale.setInterpolator(cubicEaseOut);
+        scale.setToX(0.7);
+        scale.setToY(0.7);
+        scale.play();
+    }
+
+    private void onMediaPlayerEndOfMedia() {
+        if (checkBoxRepeat.isSelected()) {
+            mediaPlayer.seek(Duration.ZERO);
+        } else if (checkBoxRepeat.isIndeterminate()) {
+            if (listViewSong.getSelectionModel().getSelectedIndex() == listViewSong.getItems().size() - 1) {
+                listViewSong.getSelectionModel().selectFirst();
+            } else {
+                listViewSong.getSelectionModel().selectNext();
+            }
+        } else if (checkBoxRandom.isSelected()) {
+            int size = listViewSong.getItems().size();
+            int rndIdx = (int) (Math.random() * size);
+            listViewSong.getSelectionModel().select(rndIdx);
+        } else {
+            if (listViewSong.getSelectionModel().getSelectedIndex() == listViewSong.getItems().size() - 1) {
+                listViewSong.getSelectionModel().selectFirst();
+                mediaPlayer.dispose();
+                toggleButtonPlayPause.setSelected(false);
+                var scale = new ScaleTransition(Duration.millis(500), stackPaneAlbumArt);
+                scale.setInterpolator(cubicEaseOut);
+                scale.setToX(0.7);
+                scale.setToY(0.7);
+                scale.play();
+            } else {
+                listViewSong.getSelectionModel().selectNext();
+            }
+        }
+    }
+
+    /**
+     * Play the specified song.
+     * @param s Song
+     */
+    private void play(Song s) {
+        if (mediaPlayer != null)
+            mediaPlayer.dispose();
+
+        // Get metadata
+        var media = new Media(s.getUri().toString());
+        labelTitle.setText(s.getTitle());
+        labelArtist.setText(s.getArtist());
+        if (s.getImage() == null) {
+            imageViewCover.setImage(defaultCover);
+        } else {
+            imageViewCover.setImage(s.getImage());
+        }
+
+        // Fill up lyrics view
+        var rawPath = s.getUri().getRawPath();
+        var lyrics = LrcParser.parse(rawPath.substring(0, rawPath.lastIndexOf('.')) + ".lrc");
+        vBoxLyrics.getChildren().clear();
+        for (var line : lyrics) {
+            var label = new Label(line.getValue());
+            label.setFont(Font.font("Microsoft YaHei", FontWeight.BOLD, 28));
+            label.setTextFill(Paint.valueOf("#ffffff"));
+            label.setOpacity(0.5);
+            label.setWrapText(true);
+
+            vBoxLyrics.getChildren().add(label);
+        }
+
+        // Toggle playing state
+        toggleButtonPlayPause.setSelected(true);
+
+        // Setup media player behaviours
+        mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.currentTimeProperty().addListener((obs1, oldVal1, newVal1) -> {
+            if (!slider.isValueChanging())
+                slider.setValue(newVal1.toMillis());
+
+            for (int i = 0; i < lyrics.size(); ++i) {
+                var time = lyrics.get(i).getKey();
+
+                if (oldVal1.lessThan(time) && newVal1.greaterThan(time)) {
+                    highlightOfIndex(i);
+                    if (i != 0)
+                        highlightRevertOfIndex(i);
+                } else if (oldVal1.greaterThan(time) && newVal1.lessThan(time)) {
+                    highlightOfIndex(i);
+                    if (i != lyrics.size() - 1)
+                        highlightRevertOfIndex(i);
+                }
+            }
+
+            var remaining = newVal1.subtract(media.getDuration());
+            labelTimeNow.setText(toMinutesSeconds(newVal1));
+            labelTimeRemaining.setText(toMinutesSeconds(remaining));
+        });
+        mediaPlayer.statusProperty().addListener((obs1, oldVal1, newVal1) -> {
+            if (newVal1 == MediaPlayer.Status.READY)
+                slider.setMax(mediaPlayer.getTotalDuration().toMillis());
+        });
+        mediaPlayer.setOnEndOfMedia(this::onMediaPlayerEndOfMedia);
+        mediaPlayer.setOnPlaying(this::onMediaPlayerPlaying);
+        mediaPlayer.setOnPaused(this::onMediaPlayerPaused);
+        mediaPlayer.setOnStopped(this::onMediaPlayerStopped);
+        mediaPlayer.setVolume(volumeSlider.getValue());
+
+        // Play the song!
+        mediaPlayer.play();
+    }
+
+    /**
+     * Convert from duration to its natural representation in String.
+     *
+     * @param d Arbitrary duration (negative allowed)
+     * @return A string in the form of {@code h:mm:ss}
+     */
     private String toMinutesSeconds(Duration d) {
         int nowMinutes = (int) d.toMinutes();
         int nowSeconds = (int) abs(d.toSeconds() - nowMinutes * 60);
@@ -326,119 +503,18 @@ public class Controller {
         fade.play();
     }
 
-    public void onRadioButtonListAction() {
-        paneLyrics.setVisible(false);
-        listViewSong.setVisible(true);
-        listViewSong.refresh();
-    }
-
-    public void onRadioButtonLyricsAction() {
-        paneLyrics.setVisible(true);
-        listViewSong.setVisible(false);
-    }
-
-    public void onToggleButtonPlayPauseAction() {
-        if (toggleButtonPlayPause.isSelected()) {
-            if (mediaPlayer == null)
-                listViewSong.getSelectionModel().selectFirst();
-
-            mediaPlayer.play();
-        } else {
-            mediaPlayer.pause();
-        }
-    }
-
-    public void onButtonNextAction() {
-        listViewSong.getSelectionModel().selectNext();
-    }
-
-    public void onButtonPrevAction() {
-        listViewSong.getSelectionModel().selectPrevious();
-    }
-
-    public void onButtonCloseAction() {
-        ((Stage) buttonClose.getScene().getWindow()).close();
-    }
-
-    public void onButtonMinimizeAction() {
-        ((Stage) buttonMinimize.getScene().getWindow()).setIconified(true);
-    }
-
-    public void onToggleButtonFullscreenAction() {
-        if (toggleButtonFullscreen.isSelected()) {
-            stackPaneRoot.setId("root-pane-maximized");
-            stackPaneRoot.setPadding(new Insets(0));
-            ((Stage) toggleButtonFullscreen.getScene().getWindow()).setMaximized(true);
-            imageViewBackground.setClip(null);
-        } else {
-            stackPaneRoot.setId("root-pane");
-            stackPaneRoot.setPadding(new Insets(32, 50, 68, 50));
-            ((Stage) toggleButtonFullscreen.getScene().getWindow()).setMaximized(false);
-            updateClip();
-        }
-    }
-
     private void updateClip() {
-        var clipImageViewBackground = new Rectangle(127 + 50, 127 + 50, 800, 600);
+        var clipVBoxLyrics = new Rectangle(stackPaneRoot.getWidth(), stackPaneRoot.getHeight());
+        clipVBoxLyrics.widthProperty().bind(paneLyrics.widthProperty());
+        clipVBoxLyrics.heightProperty().bind(stackPaneRoot.heightProperty().subtract(100));
+        clipVBoxLyrics.yProperty().bind(paneLyrics.translateYProperty().negate().subtract(40 + 36));
+        vBoxLyrics.setClip(clipVBoxLyrics);
+
+        var clipImageViewBackground = new Rectangle();
         clipImageViewBackground.widthProperty().bind(stackPaneRoot.widthProperty().subtract(100));
         clipImageViewBackground.heightProperty().bind(stackPaneRoot.heightProperty().subtract(100));
         clipImageViewBackground.setArcHeight(9 * 2);
         clipImageViewBackground.setArcWidth(9 * 2);
-        imageViewBackground.setClip(clipImageViewBackground);
-    }
-
-    public void onMediaPlayerPaused() {
-        var scale = new ScaleTransition(Duration.millis(500), stackPaneAlbumArt);
-        scale.setInterpolator(cubicEaseOut);
-        scale.setToX(0.7);
-        scale.setToY(0.7);
-        scale.play();
-    }
-
-    public void onMediaPlayerPlaying() {
-        var scale = new ScaleTransition(Duration.millis(700), stackPaneAlbumArt);
-        scale.setInterpolator(fourierBounce);
-        scale.setToX(1);
-        scale.setToY(1);
-        scale.play();
-    }
-
-    public void onMediaPlayerStopped() {
-        imageViewCover.setImage(defaultCover);
-
-        var scale = new ScaleTransition(Duration.millis(500), stackPaneAlbumArt);
-        scale.setInterpolator(cubicEaseOut);
-        scale.setToX(0.7);
-        scale.setToY(0.7);
-        scale.play();
-    }
-
-    public void onMediaPlayerEndOfMedia() {
-        if (checkBoxRepeat.isSelected()) {
-            mediaPlayer.seek(Duration.ZERO);
-        } else if (checkBoxRepeat.isIndeterminate()) {
-            if (listViewSong.getSelectionModel().getSelectedIndex() == listViewSong.getItems().size() - 1) {
-                listViewSong.getSelectionModel().selectFirst();
-            } else {
-                listViewSong.getSelectionModel().selectNext();
-            }
-        } else if (checkBoxRandom.isSelected()) {
-            int size = listViewSong.getItems().size();
-            int rndIdx = (int) (Math.random() * size);
-            listViewSong.getSelectionModel().select(rndIdx);
-        } else {
-            if (listViewSong.getSelectionModel().getSelectedIndex() == listViewSong.getItems().size() - 1) {
-                listViewSong.getSelectionModel().selectFirst();
-                mediaPlayer.dispose();
-                toggleButtonPlayPause.setSelected(false);
-                var scale = new ScaleTransition(Duration.millis(500), stackPaneAlbumArt);
-                scale.setInterpolator(cubicEaseOut);
-                scale.setToX(0.7);
-                scale.setToY(0.7);
-                scale.play();
-            } else {
-                listViewSong.getSelectionModel().selectNext();
-            }
-        }
+        paneImageView.setClip(clipImageViewBackground);
     }
 }

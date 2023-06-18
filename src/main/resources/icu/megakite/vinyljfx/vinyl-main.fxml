@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
@@ -26,16 +25,16 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane id="root-pane" fx:id="stackPaneRoot" minHeight="700.0" minWidth="900.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="icu.megakite.vinyljfx.Controller">
+<StackPane id="root-pane" fx:id="stackPaneRoot" minHeight="700.0" minWidth="900.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="icu.megakite.vinyljfx.Controller">
     <children>
-        <ImageView fx:id="imageViewBackground" opacity="0.5" pickOnBounds="true" smooth="false">
-            <effect>
-                <BoxBlur height="255.0" iterations="3" width="255.0" />
-            </effect>
-         <viewport>
-            <Rectangle2D />
-         </viewport>
-        </ImageView>
+      <Pane fx:id="paneImageView" prefHeight="200.0" prefWidth="200.0">
+         <children>
+              <ImageView fx:id="imageViewBackground" opacity="0.5" pickOnBounds="true" smooth="false">
+                  <effect>
+                      <BoxBlur height="255.0" iterations="3" width="255.0" />
+                  </effect>
+              </ImageView>
+         </children></Pane>
       <Pane prefHeight="200.0" prefWidth="200.0" StackPane.alignment="CENTER">
          <StackPane.margin>
             <Insets />
@@ -63,7 +62,7 @@
                                     <children>
                                         <ImageView fx:id="imageViewCover" fitWidth="272.0" pickOnBounds="true" preserveRatio="true">
                                             <image>
-                                                <Image url="@defaultCover.png" />
+                                                <Image url="@images/defaultCover.png" />
                                             </image>
                                         </ImageView>
                                     </children>
@@ -85,7 +84,7 @@
                                                 <Font name="Microsoft YaHei Bold" size="18.0" />
                                             </font>
                                         </Label>
-                                        <Label fx:id="labelArtist" opacity="0.5" text="&lt;Ready to play&gt;" textFill="WHITE" VBox.vgrow="NEVER">
+                                        <Label fx:id="labelArtist" blendMode="OVERLAY" opacity="0.5" text="&lt;Ready to play&gt;" textFill="WHITE" VBox.vgrow="NEVER">
                                             <VBox.margin>
                                                 <Insets />
                                             </VBox.margin>
@@ -94,14 +93,14 @@
                                             </font>
                                         </Label>
                                         <Region prefHeight="9.0" />
-                                        <StackPane>
+                                        <StackPane onMouseEntered="#onStackPaneProgressMouseEntered" onMouseExited="#onStackPaneProgressMouseExited">
                                             <children>
-                                                <ProgressBar id="progress-bar-indicator" fx:id="progressBar" maxWidth="1.7976931348623157E308" prefHeight="6.0" progress="0.0">
+                                                <ProgressBar id="progress-bar-indicator" fx:id="progressBar" maxWidth="1.7976931348623157E308" prefHeight="6.0">
                                                     <StackPane.margin>
                                                         <Insets left="9.0" right="9.0" />
                                                     </StackPane.margin>
                                                 </ProgressBar>
-                                                <Slider id="slider-progress" fx:id="slider" minHeight="24.0" opacity="0.5">
+                                                <Slider id="slider-progress" fx:id="slider" blendMode="OVERLAY" minHeight="24.0" opacity="0.5">
                                                     <cursor>
                                                         <Cursor fx:constant="HAND" />
                                                     </cursor>
@@ -111,7 +110,7 @@
                                                 <Insets />
                                             </VBox.margin>
                                         </StackPane>
-                                        <HBox alignment="CENTER" opacity="0.5" VBox.vgrow="NEVER">
+                                        <HBox alignment="CENTER" blendMode="OVERLAY" opacity="0.5" VBox.vgrow="NEVER">
                                             <children>
                                                 <Label fx:id="labelTimeNow" text="0:00" textFill="WHITE">
                                                     <font>
@@ -130,11 +129,11 @@
                                             <children>
                                                 <CheckBox id="random-checkbox" fx:id="checkBoxRandom" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" />
                                                 <Region HBox.hgrow="ALWAYS" />
-                                                <Button id="previous-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonPrevAction" />
+                                                <Button id="previous-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonPrevAction" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
                                                 <Region prefWidth="16.0" />
-                                                <ToggleButton id="play-pause-button" fx:id="toggleButtonPlayPause" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onToggleButtonPlayPauseAction" />
+                                                <ToggleButton id="play-pause-button" fx:id="toggleButtonPlayPause" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onToggleButtonPlayPauseAction" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
                                                 <Region prefWidth="16.0" />
-                                                <Button id="next-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonNextAction" />
+                                                <Button id="next-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonNextAction" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
                                                 <Region HBox.hgrow="ALWAYS" />
                                                 <CheckBox id="repeat-checkbox" fx:id="checkBoxRepeat" allowIndeterminate="true" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" />
                                             </children>
@@ -147,17 +146,17 @@
                                             <children>
                                                 <ImageView id="volume-down-image-view" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="NEVER">
                                                     <image>
-                                                        <Image url="@res/volume_down_FILL1_wght700_GRAD0_opsz24.png" />
+                                                        <Image url="@graphics/volume_down_FILL1_wght700_GRAD0_opsz24.png" />
                                                     </image>
                                                 </ImageView>
-                                                <StackPane HBox.hgrow="ALWAYS">
+                                                <StackPane onMouseEntered="#onStackPaneVolumeMouseEntered" onMouseExited="#onStackPaneVolumeMouseExited" HBox.hgrow="ALWAYS">
                                                     <children>
-                                                        <ProgressBar fx:id="volumeProgressBar" maxWidth="1.7976931348623157E308" prefHeight="6.0" progress="1.0">
+                                                        <ProgressBar fx:id="volumeProgressBar" maxWidth="1.7976931348623157E308" prefHeight="6.0">
                                                             <StackPane.margin>
                                                                 <Insets left="9.0" right="9.0" />
                                                             </StackPane.margin>
                                                         </ProgressBar>
-                                                        <Slider fx:id="volumeSlider" blockIncrement="0.1" max="1.0" opacity="0.5" value="1.0">
+                                                        <Slider fx:id="volumeSlider" blendMode="OVERLAY" blockIncrement="0.1" max="1.0" opacity="0.5" value="1.0">
                                                             <cursor>
                                                                 <Cursor fx:constant="HAND" />
                                                             </cursor>
@@ -166,7 +165,7 @@
                                                 </StackPane>
                                                 <ImageView id="volume-up-image-view" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="NEVER">
                                                     <image>
-                                                        <Image url="@res/volume_up_FILL1_wght700_GRAD0_opsz24.png" />
+                                                        <Image url="@graphics/volume_up_FILL1_wght700_GRAD0_opsz24.png" />
                                                     </image>
                                                 </ImageView>
                                             </children>

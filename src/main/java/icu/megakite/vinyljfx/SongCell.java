@@ -39,7 +39,6 @@ public class SongCell extends ListCell<Song> {
         dragIndicator.setId("drag-indicator");
         dragIndicator.setOpacity(0.5);
         dragIndicator.setCursor(Cursor.MOVE);
-
         var hBox = new HBox(textFlow, dragIndicator);
 
         setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -58,14 +57,12 @@ public class SongCell extends ListCell<Song> {
 
             e.consume();
         });
-
         dragIndicator.setOnDragOver(e -> {
             if (e.getGestureSource() != this && e.getDragboard().hasContent(DATA_FORMAT))
                 e.acceptTransferModes(TransferMode.MOVE);
 
             e.consume();
         });
-
         dragIndicator.setOnDragDropped(e -> {
             if (getItem() == null)
                 return;
