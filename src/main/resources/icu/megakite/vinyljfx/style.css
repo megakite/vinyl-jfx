@@ -30,7 +30,7 @@
     -fx-border-radius: 0;
 }
 
-.check-box .mark {
+.check-box .box .mark {
     -fx-opacity: 0;
     -fx-padding: 0;
 }
@@ -52,7 +52,7 @@
 }
 
 #repeat-checkbox:indeterminate .box {
-    -fx-background-color: url('graphics/repeat_on_FILL1_wght700_GRAD0_opsz24.png');
+    -fx-background-image: url('graphics/repeat_on_FILL1_wght700_GRAD0_opsz24.png');
 }
 
 .toggle-button, .button, .check-box, .radio-button {

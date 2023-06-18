@@ -25,7 +25,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane id="root-pane" fx:id="stackPaneRoot" minHeight="700.0" minWidth="900.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="icu.megakite.vinyljfx.Controller">
+<StackPane id="root-pane" fx:id="stackPaneRoot" minHeight="700.0" minWidth="900.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="icu.megakite.vinyljfx.Controller">
     <children>
       <Pane fx:id="paneImageView" prefHeight="200.0" prefWidth="200.0">
          <children>
@@ -84,7 +84,7 @@
                                                 <Font name="Microsoft YaHei Bold" size="18.0" />
                                             </font>
                                         </Label>
-                                        <Label fx:id="labelArtist" blendMode="OVERLAY" opacity="0.5" text="&lt;Ready to play&gt;" textFill="WHITE" VBox.vgrow="NEVER">
+                                        <Label fx:id="labelArtist" blendMode="OVERLAY" opacity="0.7" text="&lt;Ready to play&gt;" textFill="WHITE" VBox.vgrow="NEVER">
                                             <VBox.margin>
                                                 <Insets />
                                             </VBox.margin>
@@ -100,7 +100,7 @@
                                                         <Insets left="9.0" right="9.0" />
                                                     </StackPane.margin>
                                                 </ProgressBar>
-                                                <Slider id="slider-progress" fx:id="slider" blendMode="OVERLAY" minHeight="24.0" opacity="0.5">
+                                                <Slider id="slider-progress" fx:id="slider" blendMode="OVERLAY" minHeight="24.0" opacity="0.7">
                                                     <cursor>
                                                         <Cursor fx:constant="HAND" />
                                                     </cursor>
@@ -110,7 +110,7 @@
                                                 <Insets />
                                             </VBox.margin>
                                         </StackPane>
-                                        <HBox alignment="CENTER" blendMode="OVERLAY" opacity="0.5" VBox.vgrow="NEVER">
+                                        <HBox alignment="CENTER" blendMode="OVERLAY" opacity="0.7" VBox.vgrow="NEVER">
                                             <children>
                                                 <Label fx:id="labelTimeNow" text="0:00" textFill="WHITE">
                                                     <font>
@@ -129,11 +129,11 @@
                                             <children>
                                                 <CheckBox id="random-checkbox" fx:id="checkBoxRandom" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" />
                                                 <Region HBox.hgrow="ALWAYS" />
-                                                <Button id="previous-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonPrevAction" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
+                                                <Button id="previous-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonPrevAction" onMouseClicked="#onArbitraryNodeMouseClicked" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
                                                 <Region prefWidth="16.0" />
-                                                <ToggleButton id="play-pause-button" fx:id="toggleButtonPlayPause" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onToggleButtonPlayPauseAction" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
+                                                <ToggleButton id="play-pause-button" fx:id="toggleButtonPlayPause" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onToggleButtonPlayPauseAction" onMouseClicked="#onArbitraryNodeMouseClicked" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
                                                 <Region prefWidth="16.0" />
-                                                <Button id="next-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonNextAction" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
+                                                <Button id="next-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonNextAction" onMouseClicked="#onArbitraryNodeMouseClicked" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
                                                 <Region HBox.hgrow="ALWAYS" />
                                                 <CheckBox id="repeat-checkbox" fx:id="checkBoxRepeat" allowIndeterminate="true" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" />
                                             </children>
@@ -156,7 +156,7 @@
                                                                 <Insets left="9.0" right="9.0" />
                                                             </StackPane.margin>
                                                         </ProgressBar>
-                                                        <Slider fx:id="volumeSlider" blendMode="OVERLAY" blockIncrement="0.1" max="1.0" opacity="0.5" value="1.0">
+                                                        <Slider fx:id="volumeSlider" blendMode="OVERLAY" blockIncrement="0.1" max="1.0" opacity="0.7" value="1.0">
                                                             <cursor>
                                                                 <Cursor fx:constant="HAND" />
                                                             </cursor>
@@ -204,20 +204,20 @@
                                         </VBox>
                                     </children>
                                 </Pane>
-                                <ListView fx:id="listViewSong" editable="true" />
+                                <ListView fx:id="listViewSong" editable="true" onDragDropped="#onListViewSongDragDropped" onDragOver="#onListViewSongDragOver" onKeyPressed="#onListViewSongKeyPressed" />
                             </children>
                         </StackPane>
-                        <HBox alignment="BOTTOM_RIGHT" minHeight="36.0" spacing="18.0" GridPane.rowIndex="2">
+                        <HBox alignment="BOTTOM_RIGHT" minHeight="36.0" GridPane.rowIndex="2">
                             <children>
-                                <RadioButton id="lyrics-radio-button" fx:id="radioButtonLyrics" minHeight="36.0" minWidth="36.0" onAction="#onRadioButtonLyricsAction" textFill="WHITE" />
-                                <RadioButton id="list-radio-button" fx:id="radioButtonList" minHeight="36.0" minWidth="36.0" onAction="#onRadioButtonListAction" textFill="WHITE" />
+                                <RadioButton id="lyrics-radio-button" fx:id="radioButtonLyrics" minHeight="40.0" minWidth="40.0" onAction="#onRadioButtonLyricsAction" textFill="WHITE" />
+                                <RadioButton id="list-radio-button" fx:id="radioButtonList" minHeight="40.0" minWidth="40.0" onAction="#onRadioButtonListAction" textFill="WHITE" />
                             </children>
                         </HBox>
                   <HBox minHeight="36.0" nodeOrientation="RIGHT_TO_LEFT">
                      <children>
-                        <Button id="close-button" fx:id="buttonClose" mnemonicParsing="false" onAction="#onButtonCloseAction" prefHeight="36.0" prefWidth="36.0" />
-                        <ToggleButton id="fullscreen-toggle-button" fx:id="toggleButtonFullscreen" mnemonicParsing="false" onAction="#onToggleButtonFullscreenAction" prefHeight="36.0" prefWidth="36.0" />
-                        <Button id="minimize-button" fx:id="buttonMinimize" mnemonicParsing="false" onAction="#onButtonMinimizeAction" prefHeight="36.0" prefWidth="36.0" />
+                        <Button id="close-button" fx:id="buttonClose" mnemonicParsing="false" onAction="#onButtonCloseAction" prefHeight="40.0" prefWidth="40.0" />
+                        <ToggleButton id="fullscreen-toggle-button" fx:id="toggleButtonFullscreen" mnemonicParsing="false" onAction="#onToggleButtonFullscreenAction" prefHeight="40.0" prefWidth="40.0" />
+                        <Button id="minimize-button" fx:id="buttonMinimize" mnemonicParsing="false" onAction="#onButtonMinimizeAction" prefHeight="40.0" prefWidth="40.0" />
                      </children>
                   </HBox>
                </children>

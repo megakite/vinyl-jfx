@@ -88,16 +88,21 @@ public class Controller {
     private static final Interpolator fourierBounce = new Interpolator() {
         @Override
         protected double curve(double v) {
-            return ((9.0 / 7.0)
+            return ((9 / 7.)
                     * (sin(v * PI / 2)
                     + sin(v * 3 * PI / 2) / 3
                     + sin(v * 5 * PI / 2) / 9));
         }
     };
+    private static final Interpolator bounceToOriginal = new Interpolator() {
+        @Override
+        protected double curve(double v) {
+            return -sin(PI * v) * exp(-5 * v);
+        }
+    };
 
     @SuppressWarnings("ConstantConditions")
     private static final Image defaultCover = new Image(VinylJFX.class.getResourceAsStream("images/defaultCover.png"));
-
     private static final Config config = Config.getInstance();
 
     private MediaPlayer mediaPlayer;
@@ -133,29 +138,26 @@ public class Controller {
 
         // Set behaviors for volume & progress slider
         volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (mediaPlayer == null)
+                return;
+
             if (volumeSlider.isValueChanging()) {
                 mediaPlayer.setVolume(newVal.doubleValue());
                 config.setVolume(newVal.doubleValue());
             }
         });
         slider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (mediaPlayer == null)
+                return;
+
             if (slider.isValueChanging())
                 mediaPlayer.seek(Duration.millis(newVal.doubleValue()));
         });
 
         // Initialize playlist collection from file
-        var playlistFile = new File("playlist.txt");
         var songs = new ArrayList<Song>();
         try {
-            var fileReader = new FileReader(playlistFile, StandardCharsets.UTF_8);
-            var bufferedReader = new BufferedReader(fileReader);
-            for (;;) {
-                String line = bufferedReader.readLine();
-                if (line == null)
-                    break;
-
-                songs.add(new Song(line));
-            }
+            readFromPlaylist(songs);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -164,45 +166,45 @@ public class Controller {
         var playlist = FXCollections.observableArrayList(songs);
         listViewSong.setItems(playlist);
         listViewSong.setCellFactory(lv -> new SongCell());
-        listViewSong.setOnDragOver(e -> {
-            if (e.getGestureSource() != listViewSong)
-                e.acceptTransferModes(TransferMode.ANY);
-
-            e.consume();
-        });
-        listViewSong.setOnDragDropped(e -> {
-            var dragboard = e.getDragboard();
-            listViewSong
-                    .getItems()
-                    .addAll(dragboard
-                            .getFiles()
-                            .stream()
-                            .map(f -> new Song(f.toURI().toString()))
-                            .collect(Collectors.toList()));
-            e.setDropCompleted(true);
-            e.consume();
-
-            try {
-                FileWriter fileWriter = new FileWriter("playlist.txt", StandardCharsets.UTF_8);
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                for (var song : listViewSong.getItems()) {
-                    bufferedWriter.write(song.getUri().toString());
-                    bufferedWriter.newLine();
-                }
-                bufferedWriter.close();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-        listViewSong.setOnKeyPressed(e -> {
-            if (!(e.getCode() == KeyCode.DELETE || e.getCode() == KeyCode.BACK_SPACE))
-                return;
-
-            listViewSong.getItems().remove(listViewSong.getSelectionModel().getSelectedItem());
-
-            e.consume();
-        });
         listViewSong.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> play(newVal));
+    }
+
+    @FXML
+    protected void onListViewSongDragOver(DragEvent e) {
+        if (e.getGestureSource() != listViewSong)
+            e.acceptTransferModes(TransferMode.ANY);
+
+        e.consume();
+    }
+
+    @FXML
+    protected void onListViewSongDragDropped(DragEvent e) {
+        var dragboard = e.getDragboard();
+        listViewSong
+                .getItems()
+                .addAll(dragboard
+                        .getFiles()
+                        .stream()
+                        .map(f -> new Song(f.toURI().toString()))
+                        .collect(Collectors.toList()));
+        e.setDropCompleted(true);
+        e.consume();
+
+        try {
+            updatePlaylist();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @FXML
+    protected void onListViewSongKeyPressed(KeyEvent e) {
+        if (e.getCode() != KeyCode.DELETE)
+            return;
+
+        listViewSong.getItems().remove(listViewSong.getSelectionModel().getSelectedItem());
+
+        e.consume();
     }
 
     @FXML
@@ -231,12 +233,27 @@ public class Controller {
 
     @FXML
     protected void onArbitraryNodeMouseEntered(MouseEvent e) {
-        scaleTo((Node) e.getSource(), 1.14, 1.14);
+        scaleTo((Node) e.getSource(), 1.16, 1.16);
+
+        e.consume();
     }
 
     @FXML
     protected void onArbitraryNodeMouseExited(MouseEvent e) {
         scaleTo((Node) e.getSource(), 1, 1);
+
+        e.consume();
+    }
+
+    @FXML
+    protected void onArbitraryNodeMouseClicked(MouseEvent e) {
+        var scale = new ScaleTransition(Duration.millis(500), (Node) e.getSource());
+        scale.setInterpolator(bounceToOriginal);
+        scale.setByX(1);
+        scale.setByY(1);
+        scale.play();
+
+        e.consume();
     }
 
     @FXML
@@ -302,8 +319,36 @@ public class Controller {
         }
     }
 
-    private void scaleTo(Node o, double x, double y) {
-        var scale = new ScaleTransition(Duration.millis(250), o);
+    private void readFromPlaylist(ArrayList<Song> songs) throws IOException {
+        var etc = new File("etc");
+        var playlistFile = new File("etc", "playlist.txt");
+        if (!playlistFile.exists() && !etc.mkdir() && !playlistFile.createNewFile())
+            throw new IOException("Cannot create playlist file");
+
+        var fileReader = new FileReader(playlistFile, StandardCharsets.UTF_8);
+        var bufferedReader = new BufferedReader(fileReader);
+        for (;;) {
+            String line = bufferedReader.readLine();
+            if (line == null)
+                break;
+
+            songs.add(new Song(line));
+        }
+    }
+
+    private void updatePlaylist() throws IOException {
+        var playlistFile = new File("etc", "playlist.txt");
+        FileWriter fileWriter = new FileWriter(playlistFile, StandardCharsets.UTF_8);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        for (var song : listViewSong.getItems()) {
+            bufferedWriter.write(song.getUri().toString());
+            bufferedWriter.newLine();
+        }
+        bufferedWriter.close();
+    }
+
+    private void scaleTo(Node n, double x, double y) {
+        var scale = new ScaleTransition(Duration.millis(350), n);
         scale.setInterpolator(cubicEaseOut);
         scale.setToX(x);
         scale.setToY(y);
@@ -329,7 +374,7 @@ public class Controller {
     private void onMediaPlayerStopped() {
         imageViewCover.setImage(defaultCover);
 
-        var scale = new ScaleTransition(Duration.millis(500), stackPaneAlbumArt);
+        var scale = new ScaleTransition(Duration.millis(350), stackPaneAlbumArt);
         scale.setInterpolator(cubicEaseOut);
         scale.setToX(0.7);
         scale.setToY(0.7);
@@ -370,11 +415,13 @@ public class Controller {
      * @param s Song
      */
     private void play(Song s) {
+        if (s == null)
+            return;
+
         if (mediaPlayer != null)
             mediaPlayer.dispose();
 
         // Get metadata
-        var media = new Media(s.getUri().toString());
         labelTitle.setText(s.getTitle());
         labelArtist.setText(s.getArtist());
         if (s.getImage() == null) {
@@ -401,6 +448,7 @@ public class Controller {
         toggleButtonPlayPause.setSelected(true);
 
         // Setup media player behaviours
+        var media = new Media(s.getUri().toString());
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.currentTimeProperty().addListener((obs1, oldVal1, newVal1) -> {
             if (!slider.isValueChanging())
@@ -507,7 +555,7 @@ public class Controller {
         var clipVBoxLyrics = new Rectangle(stackPaneRoot.getWidth(), stackPaneRoot.getHeight());
         clipVBoxLyrics.widthProperty().bind(paneLyrics.widthProperty());
         clipVBoxLyrics.heightProperty().bind(stackPaneRoot.heightProperty().subtract(100));
-        clipVBoxLyrics.yProperty().bind(paneLyrics.translateYProperty().negate().subtract(40 + 36));
+        clipVBoxLyrics.yProperty().bind(paneLyrics.translateYProperty().negate().subtract(40 + 40));
         vBoxLyrics.setClip(clipVBoxLyrics);
 
         var clipImageViewBackground = new Rectangle();
