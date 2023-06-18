@@ -38,7 +38,7 @@ public class VinylJFX extends Application {
         scene.setFill(Color.TRANSPARENT);
 
         stage.initStyle(StageStyle.TRANSPARENT);
-        stage.setTitle("Vinyl JFX v0.1.0");
+        stage.setTitle("Vinyl v0.0.1");
         stage.getIcons().addAll(
                 new Image(VinylJFX.class.getResourceAsStream("icons/vinyl-jfx-16.png")),
                 new Image(VinylJFX.class.getResourceAsStream("icons/vinyl-jfx-24.png")),

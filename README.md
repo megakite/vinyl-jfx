@@ -2,7 +2,7 @@
 <img align="center" src="src/main/resources/icu/megakite/vinyljfx/icons/vinyl-jfx-256.png" alt="vinyl-jfx">
 </p>
 
-# vinyl-jfx
+# Vinyl
 
 Apple Music 风格的音乐播放器。<br />
 Simple music player in the style of Apple Music.
