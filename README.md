@@ -1,8 +1,10 @@
+<p align="center">
+<img align="center" src="src/main/resources/icu/megakite/vinyljfx/icons/vinyl-jfx-256.png" alt="vinyl-jfx">
+</p>
+
 # vinyl-jfx
 
-![vinyl-jfx](src/main/resources/icu/megakite/vinyljfx/icons/vinyl-jfx-256.png)
-
-Apple Music 风格的音乐播放器。\
+Apple Music 风格的音乐播放器。<br />
 Simple music player in the style of Apple Music.
 
 ## Screenshot 运行截图
