@@ -92,8 +92,7 @@
                                                 <Font name="Microsoft YaHei" size="18.0" />
                                             </font>
                                         </Label>
-                                        <Region prefHeight="9.0" />
-                                        <StackPane onMouseEntered="#onStackPaneProgressMouseEntered" onMouseExited="#onStackPaneProgressMouseExited">
+                                        <StackPane fx:id="stackPaneProgress" onMouseEntered="#onStackPaneProgressMouseEntered" onMouseExited="#onStackPaneProgressMouseExited">
                                             <children>
                                                 <ProgressBar id="progress-bar-indicator" fx:id="progressBar" maxWidth="1.7976931348623157E308" prefHeight="6.0">
                                                     <StackPane.margin>
@@ -110,6 +109,7 @@
                                                 <Insets />
                                             </VBox.margin>
                                         </StackPane>
+                                        <Region prefHeight="9.0" />
                                         <HBox alignment="CENTER" blendMode="OVERLAY" opacity="0.7" VBox.vgrow="NEVER">
                                             <children>
                                                 <Label fx:id="labelTimeNow" text="0:00" textFill="WHITE">
@@ -149,7 +149,7 @@
                                                         <Image url="@graphics/volume_down_FILL1_wght700_GRAD0_opsz24.png" />
                                                     </image>
                                                 </ImageView>
-                                                <StackPane onMouseEntered="#onStackPaneVolumeMouseEntered" onMouseExited="#onStackPaneVolumeMouseExited" HBox.hgrow="ALWAYS">
+                                                <StackPane fx:id="stackPaneVolume" onMouseEntered="#onStackPaneVolumeMouseEntered" onMouseExited="#onStackPaneVolumeMouseExited" HBox.hgrow="ALWAYS">
                                                     <children>
                                                         <ProgressBar fx:id="volumeProgressBar" maxWidth="1.7976931348623157E308" prefHeight="6.0">
                                                             <StackPane.margin>

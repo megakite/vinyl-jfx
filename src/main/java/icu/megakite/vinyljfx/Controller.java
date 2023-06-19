@@ -77,6 +77,10 @@ public class Controller {
     @FXML
     private Pane paneImageView;
     @FXML
+    private StackPane stackPaneProgress;
+    @FXML
+    private StackPane stackPaneVolume;
+    @FXML
     private final ToggleGroup toggleGroup = new ToggleGroup();
 
     private static final Interpolator cubicEaseOut = new Interpolator() {
@@ -107,7 +111,8 @@ public class Controller {
 
     private MediaPlayer mediaPlayer;
 
-    public void initialize() {
+    @FXML
+    private void initialize() {
         // Setup toggle group
         radioButtonList.setToggleGroup(toggleGroup);
         radioButtonLyrics.setToggleGroup(toggleGroup);
@@ -157,7 +162,7 @@ public class Controller {
         // Initialize playlist collection from file
         var songs = new ArrayList<Song>();
         try {
-            readFromPlaylist(songs);
+            readPlaylistFromFile(songs);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -170,7 +175,7 @@ public class Controller {
     }
 
     @FXML
-    protected void onListViewSongDragOver(DragEvent e) {
+    private void onListViewSongDragOver(DragEvent e) {
         if (e.getGestureSource() != listViewSong)
             e.acceptTransferModes(TransferMode.ANY);
 
@@ -178,7 +183,7 @@ public class Controller {
     }
 
     @FXML
-    protected void onListViewSongDragDropped(DragEvent e) {
+    private void onListViewSongDragDropped(DragEvent e) {
         var dragboard = e.getDragboard();
         listViewSong
                 .getItems()
@@ -198,56 +203,55 @@ public class Controller {
     }
 
     @FXML
-    protected void onListViewSongKeyPressed(KeyEvent e) {
+    private void onListViewSongKeyPressed(KeyEvent e) {
         if (e.getCode() != KeyCode.DELETE)
             return;
 
+        e.consume();
+
         listViewSong.getItems().remove(listViewSong.getSelectionModel().getSelectedItem());
+        try {
+            updatePlaylist();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
+    @FXML
+    private void onStackPaneProgressMouseEntered() {
+        scaleTo(stackPaneProgress, 1.02, 1.6, 250, cubicEaseOut);
+    }
+
+    @FXML
+    private void onStackPaneProgressMouseExited() {
+        scaleTo(stackPaneProgress, 1, 1, 250, cubicEaseOut);
+    }
+
+    @FXML
+    private void onStackPaneVolumeMouseEntered() {
+        scaleTo(stackPaneVolume, 1.02, 1.6, 250, cubicEaseOut);
+    }
+
+    @FXML
+    private void onStackPaneVolumeMouseExited() {
+        scaleTo(stackPaneVolume, 1, 1, 250, cubicEaseOut);
+    }
+
+    @FXML
+    private void onArbitraryNodeMouseEntered(MouseEvent e) {
+        scaleTo((Node) e.getSource(), 1.16, 1.16, 250, cubicEaseOut);
         e.consume();
     }
 
     @FXML
-    protected void onStackPaneProgressMouseEntered() {
-        scaleTo(progressBar, 1.02, 1.6);
-        scaleTo(slider, 1.02, 1.6);
-    }
-
-    @FXML
-    protected void onStackPaneProgressMouseExited() {
-        scaleTo(progressBar, 1, 1);
-        scaleTo(slider, 1, 1);
-    }
-
-    @FXML
-    protected void onStackPaneVolumeMouseEntered() {
-        scaleTo(volumeProgressBar, 1.02, 1.6);
-        scaleTo(volumeSlider, 1.02, 1.6);
-    }
-
-    @FXML
-    protected void onStackPaneVolumeMouseExited() {
-        scaleTo(volumeProgressBar, 1, 1);
-        scaleTo(volumeSlider, 1, 1);
-    }
-
-    @FXML
-    protected void onArbitraryNodeMouseEntered(MouseEvent e) {
-        scaleTo((Node) e.getSource(), 1.16, 1.16);
-
+    private void onArbitraryNodeMouseExited(MouseEvent e) {
+        scaleTo((Node) e.getSource(), 1, 1, 250, cubicEaseOut);
         e.consume();
     }
 
     @FXML
-    protected void onArbitraryNodeMouseExited(MouseEvent e) {
-        scaleTo((Node) e.getSource(), 1, 1);
-
-        e.consume();
-    }
-
-    @FXML
-    protected void onArbitraryNodeMouseClicked(MouseEvent e) {
-        var scale = new ScaleTransition(Duration.millis(500), (Node) e.getSource());
+    private void onArbitraryNodeMouseClicked(MouseEvent e) {
+        var scale = new ScaleTransition(Duration.millis(350), (Node) e.getSource());
         scale.setInterpolator(bounceToOriginal);
         scale.setByX(1);
         scale.setByY(1);
@@ -257,20 +261,20 @@ public class Controller {
     }
 
     @FXML
-    protected void onRadioButtonListAction() {
+    private void onRadioButtonListAction() {
         paneLyrics.setVisible(false);
         listViewSong.setVisible(true);
         listViewSong.refresh();
     }
 
     @FXML
-    protected void onRadioButtonLyricsAction() {
+    private void onRadioButtonLyricsAction() {
         paneLyrics.setVisible(true);
         listViewSong.setVisible(false);
     }
 
     @FXML
-    protected void onToggleButtonPlayPauseAction() {
+    private void onToggleButtonPlayPauseAction() {
         if (toggleButtonPlayPause.isSelected()) {
             if (mediaPlayer == null)
                 listViewSong.getSelectionModel().selectFirst();
@@ -282,27 +286,27 @@ public class Controller {
     }
 
     @FXML
-    protected void onButtonNextAction() {
+    private void onButtonNextAction() {
         listViewSong.getSelectionModel().selectNext();
     }
 
     @FXML
-    protected void onButtonPrevAction() {
+    private void onButtonPrevAction() {
         listViewSong.getSelectionModel().selectPrevious();
     }
 
     @FXML
-    protected void onButtonCloseAction() {
+    private void onButtonCloseAction() {
         ((Stage) buttonClose.getScene().getWindow()).close();
     }
 
     @FXML
-    protected void onButtonMinimizeAction() {
+    private void onButtonMinimizeAction() {
         ((Stage) buttonMinimize.getScene().getWindow()).setIconified(true);
     }
 
     @FXML
-    protected void onToggleButtonFullscreenAction() {
+    private void onToggleButtonFullscreenAction() {
         if (toggleButtonFullscreen.isSelected()) {
             stackPaneRoot.setId("root-pane-maximized");
             stackPaneRoot.setPadding(Insets.EMPTY);
@@ -319,7 +323,7 @@ public class Controller {
         }
     }
 
-    private void readFromPlaylist(ArrayList<Song> songs) throws IOException {
+    private static void readPlaylistFromFile(ArrayList<Song> songs) throws IOException {
         var etc = new File("etc");
         var playlistFile = new File("etc", "playlist.txt");
         if (!playlistFile.exists() && !etc.mkdir() && !playlistFile.createNewFile())
@@ -347,38 +351,25 @@ public class Controller {
         bufferedWriter.close();
     }
 
-    private void scaleTo(Node n, double x, double y) {
-        var scale = new ScaleTransition(Duration.millis(350), n);
-        scale.setInterpolator(cubicEaseOut);
+    private void scaleTo(Node n, double x, double y, double ms, Interpolator i) {
+        var scale = new ScaleTransition(Duration.millis(ms), n);
+        scale.setInterpolator(i);
         scale.setToX(x);
         scale.setToY(y);
         scale.play();
     }
 
     private void onMediaPlayerPaused() {
-        var scale = new ScaleTransition(Duration.millis(500), stackPaneAlbumArt);
-        scale.setInterpolator(cubicEaseOut);
-        scale.setToX(0.7);
-        scale.setToY(0.7);
-        scale.play();
+        scaleTo(stackPaneAlbumArt, 0.7, 0.7, 350, cubicEaseOut);
     }
 
     private void onMediaPlayerPlaying() {
-        var scale = new ScaleTransition(Duration.millis(700), stackPaneAlbumArt);
-        scale.setInterpolator(fourierBounce);
-        scale.setToX(1);
-        scale.setToY(1);
-        scale.play();
+        scaleTo(stackPaneAlbumArt, 1, 1, 700, fourierBounce);
     }
 
     private void onMediaPlayerStopped() {
         imageViewCover.setImage(defaultCover);
-
-        var scale = new ScaleTransition(Duration.millis(350), stackPaneAlbumArt);
-        scale.setInterpolator(cubicEaseOut);
-        scale.setToX(0.7);
-        scale.setToY(0.7);
-        scale.play();
+        scaleTo(stackPaneAlbumArt, 0.7, 0.7, 350, cubicEaseOut);
     }
 
     private void onMediaPlayerEndOfMedia() {
@@ -392,18 +383,13 @@ public class Controller {
             }
         } else if (checkBoxRandom.isSelected()) {
             int size = listViewSong.getItems().size();
-            int rndIdx = (int) (Math.random() * size);
-            listViewSong.getSelectionModel().select(rndIdx);
+            int randomIdx = (int) (Math.random() * size);
+            listViewSong.getSelectionModel().select(randomIdx);
         } else {
             if (listViewSong.getSelectionModel().getSelectedIndex() == listViewSong.getItems().size() - 1) {
                 listViewSong.getSelectionModel().selectFirst();
-                mediaPlayer.dispose();
                 toggleButtonPlayPause.setSelected(false);
-                var scale = new ScaleTransition(Duration.millis(500), stackPaneAlbumArt);
-                scale.setInterpolator(cubicEaseOut);
-                scale.setToX(0.7);
-                scale.setToY(0.7);
-                scale.play();
+                mediaPlayer.stop();
             } else {
                 listViewSong.getSelectionModel().selectNext();
             }
@@ -450,30 +436,38 @@ public class Controller {
         // Setup media player behaviours
         var media = new Media(s.getUri().toString());
         mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.currentTimeProperty().addListener((obs1, oldVal1, newVal1) -> {
+
+        mediaPlayer.currentTimeProperty().addListener((obs, oldVal, newVal) -> {
             if (!slider.isValueChanging())
-                slider.setValue(newVal1.toMillis());
+                slider.setValue(newVal.toMillis());
 
             for (int i = 0; i < lyrics.size(); ++i) {
-                var time = lyrics.get(i).getKey();
-
-                if (oldVal1.lessThan(time) && newVal1.greaterThan(time)) {
-                    highlightOfIndex(i);
-                    if (i != 0)
-                        highlightRevertOfIndex(i);
-                } else if (oldVal1.greaterThan(time) && newVal1.lessThan(time)) {
-                    highlightOfIndex(i);
-                    if (i != lyrics.size() - 1)
-                        highlightRevertOfIndex(i);
+                var current = lyrics.get(i).getKey();
+                if (newVal.lessThan(current) && oldVal.greaterThan(current)) {
+                    highlightRevert(i);
+                    if (i != 0) {
+                        focus(i - 1);
+                        highlight(i - 1);
+                    } else {
+                        focus(i);
+                    }
+                    break;
+                }
+                if (newVal.greaterThan(current) && oldVal.lessThan(current)) {
+                    highlight(i);
+                    focus(i);
+                    if (i != 0) {
+                        highlightRevert(i - 1);
+                    }
                 }
             }
 
-            var remaining = newVal1.subtract(media.getDuration());
-            labelTimeNow.setText(toMinutesSeconds(newVal1));
+            var remaining = newVal.subtract(media.getDuration());
+            labelTimeNow.setText(toMinutesSeconds(newVal));
             labelTimeRemaining.setText(toMinutesSeconds(remaining));
         });
-        mediaPlayer.statusProperty().addListener((obs1, oldVal1, newVal1) -> {
-            if (newVal1 == MediaPlayer.Status.READY)
+        mediaPlayer.statusProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == MediaPlayer.Status.READY)
                 slider.setMax(mediaPlayer.getTotalDuration().toMillis());
         });
         mediaPlayer.setOnEndOfMedia(this::onMediaPlayerEndOfMedia);
@@ -508,13 +502,17 @@ public class Controller {
         return now.toString();
     }
 
-    private void highlightOfIndex(int i) {
+    private void focus(int i) {
         var label = (Label) vBoxLyrics.getChildren().get(i);
 
         var translatePane = new TranslateTransition(Duration.millis(700), paneLyrics);
         translatePane.setToY(paneLyrics.getHeight() / 2 - label.getLayoutY() - label.getHeight() / 2);
         translatePane.setInterpolator(cubicEaseOut);
         translatePane.play();
+    }
+
+    private void highlight(int i) {
+        var label = (Label) vBoxLyrics.getChildren().get(i);
 
         var translate = new TranslateTransition(Duration.millis(700), label);
         translate.setToX(label.getLayoutBounds().getWidth() * 0.05);
@@ -532,8 +530,8 @@ public class Controller {
         fade.play();
     }
 
-    private void highlightRevertOfIndex(int i) {
-        var label = (Label) vBoxLyrics.getChildren().get(i - 1);
+    private void highlightRevert(int i) {
+        var label = (Label) vBoxLyrics.getChildren().get(i);
 
         var translate = new TranslateTransition(Duration.millis(700), label);
         translate.setToX(0);
