@@ -2,6 +2,7 @@ package icu.megakite.vinyljfx;
 
 import javafx.animation.*;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -63,7 +64,7 @@ public class Controller {
     @FXML
     private ToggleButton toggleButtonPlayPause;
     @FXML
-    private CheckBox checkBoxRandom;
+    private CheckBox checkBoxShuffle;
     @FXML
     private CheckBox checkBoxRepeat;
     @FXML
@@ -138,25 +139,47 @@ public class Controller {
         progressBar.progressProperty().bind(slider.valueProperty().divide(slider.maxProperty()));
         volumeProgressBar.progressProperty().bind(volumeSlider.valueProperty().divide(volumeSlider.maxProperty()));
 
-        // Get volume from config file
+        // Get volume and mode from config file
         volumeSlider.setValue(config.getVolume());
+        switch (config.getMode()) {
+            case DEFAULT:
+                checkBoxRepeat.setSelected(false);
+                checkBoxShuffle.setSelected(false);
+                break;
+            case REPEAT_ALL:
+                checkBoxRepeat.setIndeterminate(true);
+                checkBoxShuffle.setSelected(false);
+                break;
+            case REPEAT_ONE:
+                checkBoxRepeat.setSelected(true);
+                checkBoxShuffle.setSelected(false);
+                break;
+            case SHUFFLE:
+                checkBoxRepeat.setSelected(false);
+                checkBoxShuffle.setSelected(true);
+                break;
+        }
 
         // Set behaviors for volume & progress slider
         volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (!volumeSlider.isValueChanging())
+                return;
+
+            config.setVolume(newVal.doubleValue());
+
             if (mediaPlayer == null)
                 return;
 
-            if (volumeSlider.isValueChanging()) {
-                mediaPlayer.setVolume(newVal.doubleValue());
-                config.setVolume(newVal.doubleValue());
-            }
+            mediaPlayer.setVolume(newVal.doubleValue());
         });
         slider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (!slider.isValueChanging())
+                return;
+
             if (mediaPlayer == null)
                 return;
 
-            if (slider.isValueChanging())
-                mediaPlayer.seek(Duration.millis(newVal.doubleValue()));
+            mediaPlayer.seek(Duration.millis(newVal.doubleValue()));
         });
 
         // Initialize playlist collection from file
@@ -172,6 +195,19 @@ public class Controller {
         listViewSong.setItems(playlist);
         listViewSong.setCellFactory(lv -> new SongCell());
         listViewSong.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> play(newVal));
+    }
+
+    @FXML
+    private void onToggleButtonModeAction() {
+        if (checkBoxRepeat.isSelected()) {
+            config.setMode(Mode.REPEAT_ONE);
+        } else if (checkBoxShuffle.isSelected()) {
+            config.setMode(Mode.SHUFFLE);
+        } else if (checkBoxRepeat.isIndeterminate()) {
+            config.setMode(Mode.REPEAT_ALL);
+        } else {
+            config.setMode(Mode.DEFAULT);
+        }
     }
 
     @FXML
@@ -375,16 +411,16 @@ public class Controller {
     private void onMediaPlayerEndOfMedia() {
         if (checkBoxRepeat.isSelected()) {
             mediaPlayer.seek(Duration.ZERO);
+        } else if (checkBoxShuffle.isSelected()) {
+            int size = listViewSong.getItems().size();
+            int randomIdx = (int) (Math.random() * size);
+            listViewSong.getSelectionModel().select(randomIdx);
         } else if (checkBoxRepeat.isIndeterminate()) {
             if (listViewSong.getSelectionModel().getSelectedIndex() == listViewSong.getItems().size() - 1) {
                 listViewSong.getSelectionModel().selectFirst();
             } else {
                 listViewSong.getSelectionModel().selectNext();
             }
-        } else if (checkBoxRandom.isSelected()) {
-            int size = listViewSong.getItems().size();
-            int randomIdx = (int) (Math.random() * size);
-            listViewSong.getSelectionModel().select(randomIdx);
         } else {
             if (listViewSong.getSelectionModel().getSelectedIndex() == listViewSong.getItems().size() - 1) {
                 listViewSong.getSelectionModel().selectFirst();

@@ -127,7 +127,7 @@
                                         </HBox>
                                         <HBox alignment="CENTER" minHeight="48.0" VBox.vgrow="NEVER">
                                             <children>
-                                                <CheckBox id="random-checkbox" fx:id="checkBoxRandom" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" />
+                                                <CheckBox id="random-checkbox" fx:id="checkBoxShuffle" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onToggleButtonModeAction" />
                                                 <Region HBox.hgrow="ALWAYS" />
                                                 <Button id="previous-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonPrevAction" onMouseClicked="#onArbitraryNodeMouseClicked" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
                                                 <Region prefWidth="16.0" />
@@ -135,7 +135,7 @@
                                                 <Region prefWidth="16.0" />
                                                 <Button id="next-button" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" onAction="#onButtonNextAction" onMouseClicked="#onArbitraryNodeMouseClicked" onMouseEntered="#onArbitraryNodeMouseEntered" onMouseExited="#onArbitraryNodeMouseExited" />
                                                 <Region HBox.hgrow="ALWAYS" />
-                                                <CheckBox id="repeat-checkbox" fx:id="checkBoxRepeat" allowIndeterminate="true" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" />
+                                                <CheckBox id="repeat-checkbox" fx:id="checkBoxRepeat" allowIndeterminate="true" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onToggleButtonModeAction" />
                                             </children>
                                             <VBox.margin>
                                                 <Insets />
