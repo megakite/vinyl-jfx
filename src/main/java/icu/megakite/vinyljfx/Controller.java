@@ -2,7 +2,6 @@ package icu.megakite.vinyljfx;
 
 import javafx.animation.*;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
