@@ -21,6 +21,7 @@ import javafx.util.Duration;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.*;
@@ -225,7 +226,17 @@ public class Controller {
                 .addAll(dragboard
                         .getFiles()
                         .stream()
-                        .map(f -> new Song(f.toURI().toString()))
+                        .map(f -> {
+                            Song s = null;
+                            try {
+                                s = new Song(f.toURI().toString());
+                            } catch (MediaException ex) {
+                                if (ex.getType() != MediaException.Type.MEDIA_UNSUPPORTED)
+                                    throw new RuntimeException(ex);
+                            }
+                            return s;
+                        })
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toList()));
         e.setDropCompleted(true);
         e.consume();
@@ -395,7 +406,7 @@ public class Controller {
     }
 
     private void onMediaPlayerPaused() {
-        scaleTo(stackPaneAlbumArt, 0.7, 0.7, 350, cubicEaseOut);
+        scaleTo(stackPaneAlbumArt, 0.7, 0.7, 500, cubicEaseOut);
     }
 
     private void onMediaPlayerPlaying() {
@@ -404,7 +415,7 @@ public class Controller {
 
     private void onMediaPlayerStopped() {
         imageViewCover.setImage(defaultCover);
-        scaleTo(stackPaneAlbumArt, 0.7, 0.7, 350, cubicEaseOut);
+        scaleTo(stackPaneAlbumArt, 0.7, 0.7, 500, cubicEaseOut);
     }
 
     private void onMediaPlayerEndOfMedia() {
@@ -469,7 +480,12 @@ public class Controller {
         toggleButtonPlayPause.setSelected(true);
 
         // Setup media player behaviours
-        var media = new Media(s.getUri().toString());
+        Media media;
+        try {
+            media = new Media(s.getUri().toString());
+        } catch (MediaException e) {
+            return;
+        }
         mediaPlayer = new MediaPlayer(media);
 
         mediaPlayer.currentTimeProperty().addListener((obs, oldVal, newVal) -> {
@@ -497,7 +513,7 @@ public class Controller {
                 }
             }
 
-            var remaining = newVal.subtract(media.getDuration());
+            var remaining = newVal.subtract(mediaPlayer.getMedia().getDuration());
             labelTimeNow.setText(toMinutesSeconds(newVal));
             labelTimeRemaining.setText(toMinutesSeconds(remaining));
         });

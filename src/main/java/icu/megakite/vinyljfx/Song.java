@@ -3,6 +3,7 @@ package icu.megakite.vinyljfx;
 import javafx.collections.MapChangeListener;
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaException;
 
 import java.io.File;
 import java.io.Serializable;
@@ -16,7 +17,7 @@ public class Song implements Serializable {
     private Image image;
     private final URI uri;
 
-    Song(String s) {
+    Song(String s) throws MediaException {
         try {
             uri = new URI(s);
         } catch (URISyntaxException e) {
@@ -39,7 +40,6 @@ public class Song implements Serializable {
             image = new Image(partialPath + ".bmp");
             if (!image.isError())
                 break label;
-
             image = null;
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
@@ -67,7 +67,7 @@ public class Song implements Serializable {
         return uri;
     }
 
-    private void getMetadata(String s) {
+    private void getMetadata(String s) throws MediaException {
         var metadata = new Media(s).getMetadata();
         metadata.addListener((MapChangeListener<String, Object>) c -> {
             if (c.wasAdded()) {
